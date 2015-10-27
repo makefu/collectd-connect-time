@@ -40,7 +40,7 @@ class ConnectTimePlugin(object):
             val.type_instance = "max"
             val.plugin_instance = t
             # TODO: split into keys and values
-            val.values = [int(max(target_val.values()))]
+            val.values = [int(round(max(target_val.values()),0))]
             val.dispatch()
 
     def get_target_val(self,t):
@@ -67,7 +67,8 @@ class ConnectTimePlugin(object):
                     self.debug("{} -> {}".format(addr[0],e))
                 else:
                     k = "{}:{}".format(*addr)
-                    ret[k] = duration * 1000 # in ms
+                    # time in uS
+                    ret[k] = duration
         return ret
 
     def debug(self,msg):
@@ -84,8 +85,10 @@ class ConnectTimePlugin(object):
 
 def cli():
     import sys,json
-    c = ConnectTimePlugin()
-    print(json.dumps(c.get_target_val(sys.argv[1]),indent=4))
+    # show in ms, round to the nearest 4 vals
+    c = { k:round(v*1000,4) for k,v, in
+            ConnectTimePlugin().get_target_val(sys.argv[1]).items()}
+    print(json.dumps(c,indent=4))
 
 def run_collectd(collectd):
     c = ConnectTimePlugin(collectd)
