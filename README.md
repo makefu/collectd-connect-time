@@ -2,6 +2,14 @@
 
 Returns the time required to connect to hostname[:port]
 
+# CLI
+
+    $ collectd-connect-time google.de
+    {
+        "64.233.167.94:80": 5.728006362915039
+    }
+
+
 # Collectd Configuration
 
       LoadPlugin python
