@@ -62,7 +62,8 @@ class ConnectTimePlugin(object):
                     begin = time()
                     s = socket(fam,typ)
                     s.connect(addr)
-                    duration = time() - begin
+                    # microSeconds
+                    duration = (time() - begin)*1000*1000
                 except socket_error as e:
                     self.debug("{} -> {}".format(addr[0],e))
                 else:
@@ -86,7 +87,7 @@ class ConnectTimePlugin(object):
 def cli():
     import sys,json
     # show in ms, round to the nearest 4 vals
-    c = { k:round(v*1000,4) for k,v, in
+    c = { k:round(v/1000,4) for k,v, in
             ConnectTimePlugin().get_target_val(sys.argv[1]).items()}
     print(json.dumps(c,indent=4))
 
