@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 import logging
-from socket import socket,getaddrinfo,AF_UNSPEC,SOCK_STREAM,gaierror,error as socket_error
+from socket import socket,getaddrinfo,AF_UNSPEC,SOCK_STREAM,gaierror, \
+        error as socket_error,timeout as timeout_error
 from time import time
 
 class ConnectTimePlugin(object):
@@ -40,8 +41,11 @@ class ConnectTimePlugin(object):
             val.type_instance = "max"
             val.plugin_instance = t
             # TODO: split into keys and values
-            val.values = [int(round(max(target_val.values()),0))]
-            val.dispatch()
+            try:
+                val.values = [int(round(max(target_val.values()),0))]
+                val.dispatch()
+            except ValueError as e:
+                log.error("cannot dispatch value for target {} -> {}".format(t,e))
 
     def get_target_val(self,t):
         try:
@@ -61,11 +65,16 @@ class ConnectTimePlugin(object):
                 try:
                     begin = time()
                     s = socket(fam,typ)
+                    s.settimeout(5)
                     s.connect(addr)
                     # microSeconds
                     duration = (time() - begin)*1000*1000
                 except socket_error as e:
                     self.debug("{} -> {}".format(addr[0],e))
+                except timeout_error as e:
+                    self.error("{} - Timeout error!".format(addr[0],e))
+                    # 5 seconds
+                    duration = 5*1000*1000
                 else:
                     k = "{}:{}".format(*addr)
                     # time in uS

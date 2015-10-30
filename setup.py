@@ -9,7 +9,7 @@ with open("classifiers.txt") as fd:
 
 setup(
     name="collectd-connect-time",
-    version="0.2.1",
+    version="0.2.2",
     description="TCP Connection time plugin for collectd.",
     author="Felix Richter",
     author_email="github@syntax-fehler.de",
